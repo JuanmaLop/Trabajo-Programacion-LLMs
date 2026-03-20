@@ -1,0 +1,15 @@
+El Problema
+Una empresa de mensajería quiere predecir si un paquete llegará tarde. Te entregan un DataFrame con el historial de pedidos, pero las fechas están en formato de texto y la información del tráfico está dispersa. Para entrenar un modelo, necesitas transformar estos datos en métricas numéricas útiles.
+
+Tu Misión
+Escribe una función llamada extraer_metricas_logistica(df_pedidos, umbral_distancia) que realice lo siguiente:
+
+	1. Conversión de Fechas: Convierte las columnas 'fecha_registro' y 'fecha_limite' a objetos datetime de pandas.
+
+	2. Cálculo de Urgencia: Crea una nueva columna llamada 'horas_disponibles' que sea la diferencia en horas entre la fecha_limite y la fecha_registro. (Usa numpy para asegurar que el resultado sea de tipo flotante).
+ 
+	3. Filtrado por Relevancia: Filtra el DataFrame para conservar solo los pedidos donde la 'distancia_km' sea mayor a umbral_distancia.
+
+	4. Codificación Simple: Crea una columna binaria 'es_prioritario' que valga 1 si el 'tipo_servicio' es "Express" y 0 en cualquier otro caso.
+
+	5. Salida: Devuelve el DataFrame resultante conteniendo solo las columnas: ['horas_disponibles', 'distancia_km', 'es_prioritario'].

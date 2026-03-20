@@ -1,0 +1,41 @@
+El problema:
+Tienes un DataFrame de pandas que contiene una columna con fechas y varias columnas con números.
+
+En las columnas numéricas puede haber valores faltantes (NaN) y las fechas están en formato de texto. Antes de usar estos datos en un modelo de Machine Learning, necesitas convertir las fechas en información útil y preparar las columnas numéricas.
+
+Tu misión:
+
+Escribe una función llamada: preparar_features_temporales(df, fecha_col) que realice lo siguiente:
+
+	1. Convertir la columna fecha_col a tipo fecha usando pd.to_datetime(..., errors='coerce').
+
+	2. Si alguna fecha no se puede convertir y queda como NaN, reemplazarla con la mediana de las fechas válidas o pd.Timestamp('2020-01-01') si no hay fechas válidas.
+
+	3. Crear nuevas columnas a partir de la fecha:
+		- day → día del mes
+		- month → mes
+		- weekday → día de la semana (0 = lunes, 6 = domingo)
+		- is_weekend → 1 si es sábado o domingo, 0 si no
+
+	4. Convertir la columna weekday en variables binarias usando: sklearn.preprocessing.OneHotEncoder(handle_unknown='ignore', sparse=False).
+
+	5. Tomar todas las columnas numéricas originales (todas menos fecha_col y sin incluir las nuevas) y:
+		- Rellenar los NaN con el promedio de cada columna usando SimpleImputer(strategy='mean')
+		- Escalar los valores usando StandardScaler() para que tengan media 0 y desviación estándar 1.
+
+	6. Crear una matriz final de numpy juntando:
+		- Las columnas numéricas originales del DataFrame (todas menos la columna de fecha) después de haber:
+
+			* Rellenado sus valores faltantes (NaN) con el promedio de la columna
+
+			* Escalado los valores con StandardScaler.
+
+		- Las columnas nuevas creadas a partir de la fecha:
+
+			* day
+			* month
+			* is_weekend
+
+		- Las columnas binarias generadas al aplicar OneHotEncoder a weekday.
+
+	7. La función debe devolver un numpy.ndarray con todas estas columnas combinadas.

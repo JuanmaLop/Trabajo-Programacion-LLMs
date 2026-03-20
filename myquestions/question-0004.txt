@@ -1,0 +1,19 @@
+El Problema
+Trabajas en el equipo de seguridad de una billetera virtual. Tu misión es detectar patrones sospechosos en las transacciones. Para que el modelo de detección de fraude funcione, necesitas transformar los datos crudos (montos y tipos de comercio) en valores numéricos estandarizados y categorías codificadas.
+
+Tu Misión
+	1. Escribe una función llamada preparar_deteccion_fraude(df_transacciones, monto_max_normal) que realice lo siguiente:
+
+	2. Limpieza: Reemplaza los valores faltantes (NaN) en la columna 'monto' con el valor de la mediana de esa misma columna (usa SimpleImputer de sklearn).
+
+	3. Codificación: La columna 'tipo_comercio' tiene categorías (ej: "Retail", "Food", "Tech"). Debes convertirlas a números enteros usando LabelEncoder de sklearn.
+
+        4. Normalización: Aplica un escalado de tipo StandardScaler a la columna 'monto'.
+
+	5. Etiquetado Automático: Crea una nueva columna (que será nuestra variable objetivo y) llamada 'sospechoso'. Esta debe valer 1 si el monto (antes de escalar) es mayor que monto_max_normal, y 0 en caso contrario.
+
+	6. Salida: Devuelve una tupla con:
+
+		- Un numpy.ndarray con las columnas 'tipo_comercio' y 'monto' (ya procesadas).
+
+		- Un numpy.ndarray con la columna objetivo 'sospechoso'.

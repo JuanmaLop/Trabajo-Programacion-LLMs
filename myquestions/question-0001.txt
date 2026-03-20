@@ -1,0 +1,17 @@
+El Problema
+Trabajas para una exportadora de café que recibe muestras de diversas fincas. Recibes un DataFrame de pandas con datos de sensores sobre las muestras, pero los datos vienen con ruido: algunas muestras tienen niveles de humedad inviables y a otras les faltan datos de altitud. Para que el modelo de Machine Learning pueda predecir la puntuación de cata, los datos deben estar limpios y normalizados.
+
+Tu Misión
+Escribe una función llamada procesar_calidad_cafe(df_muestras, humedad_min) que realice lo siguiente:
+
+	1. Filtrado: Elimina todas las filas donde la columna 'humedad' sea menor al parámetro humedad_min.
+
+	2. Imputación: En la columna 'altitud', rellena los valores faltantes (NaN) utilizando la mediana (usa SimpleImputer de sklearn).
+
+	3. Escalado: Aplica un escalado robusto a las columnas 'altitud' y 'densidad' para que los valores atípicos no afecten el análisis (usa RobustScaler de sklearn).
+
+	4. Salida: La función debe devolver una tupla con dos elementos:
+
+		- Un numpy.ndarray con las columnas 'altitud' y 'densidad' ya procesadas.
+
+		- Una pandas.Series con la columna objetivo 'puntuacion'.
