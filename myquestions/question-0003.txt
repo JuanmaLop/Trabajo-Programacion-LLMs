@@ -1,41 +1,40 @@
 El problema:
-Tienes un DataFrame de pandas que contiene una columna con fechas y varias columnas con números.
+Trabajas en la división de datos de una agencia aeroespacial. Tu equipo opera una constelación de satélites que capturan imágenes de la Tierra. Recibes un registro de las "Ventanas de Captura" (momentos en que el satélite puede tomar fotos) junto con métricas de los sensores de a bordo (nivel de batería, temperatura del panel, etc.).
 
-En las columnas numéricas puede haber valores faltantes (NaN) y las fechas están en formato de texto. Antes de usar estos datos en un modelo de Machine Learning, necesitas convertir las fechas en información útil y preparar las columnas numéricas.
+Debes preparar estos datos para un modelo que prediga si una captura será exitosa, pero los registros de telemetría tienen ruidos: hay sensores con fallos (NaN) y las fechas de los eventos vienen en formatos de texto inconsistentes.
 
 Tu misión:
 
-Escribe una función llamada: preparar_features_temporales(df, fecha_col) que realice lo siguiente:
+Escribe una función llamada preparar_analisis_satelital(df_telemetria, col_momento) que realice lo siguiente:
 
-	1. Convertir la columna fecha_col a tipo fecha usando pd.to_datetime(..., errors='coerce').
+	1. Sincronización Temporal: Convierte la columna col_momento a tipo fecha usando pd.to_datetime(..., errors='coerce', format='%Y/%m/%d').
 
-	2. Si alguna fecha no se puede convertir y queda como NaN, reemplazarla con la mediana de las fechas válidas o pd.Timestamp('2020-01-01') si no hay fechas válidas.
+	2. Corrección de Órbita: Si alguna fecha no se puede convertir, reemplázala con la mediana de las fechas válidas del registro (o 2020-01-01 si no hay ninguna válida).
 
-	3. Crear nuevas columnas a partir de la fecha:
-		- day → día del mes
-		- month → mes
-		- weekday → día de la semana (0 = lunes, 6 = domingo)
-		- is_weekend → 1 si es sábado o domingo, 0 si no
+	3. Extracción de Ciclos: Crea nuevas métricas temporales:
+		- dia_mision → Día del mes de la captura.
 
-	4. Convertir la columna weekday en variables binarias usando: sklearn.preprocessing.OneHotEncoder(handle_unknown='ignore', sparse=False).
+		- mes_operativo → Mes del año.		
 
-	5. Tomar todas las columnas numéricas originales (todas menos fecha_col y sin incluir las nuevas) y:
-		- Rellenar los NaN con el promedio de cada columna usando SimpleImputer(strategy='mean')
+		- ciclo_semanal → Día de la semana (0 = Lunes, 6 = Domingo).
+
+		- prioridad_fin_semana → 1 si la captura es sábado o domingo, 0 si es día laboral.
+
+	4. Codificación de Ciclos: Convierte la columna ciclo_semanal en variables binarias (One-Hot Encoding) usando sklearn.
+
+	5. Normalización de Telemetría: Toma todas las columnas numéricas originales (sensores) y:
+		- Rellena los valores faltantes con el promedio de cada columna (SimpleImputer).
 		- Escalar los valores usando StandardScaler() para que tengan media 0 y desviación estándar 1.
 
-	6. Crear una matriz final de numpy juntando:
-		- Las columnas numéricas originales del DataFrame (todas menos la columna de fecha) después de haber:
+	6. Fusión de Datos: Construye una matriz final de numpy concatenando en este orden:
+		- Los sensores originales después de haber:
 
 			* Rellenado sus valores faltantes (NaN) con el promedio de la columna
 
 			* Escalado los valores con StandardScaler.
 
-		- Las columnas nuevas creadas a partir de la fecha:
+		- Las columnas: dia_mision, mes_operativo y prioridad_fin_semana.
 
-			* day
-			* month
-			* is_weekend
-
-		- Las columnas binarias generadas al aplicar OneHotEncoder a weekday.
+		- Las columnas binarias generadas al aplicar OneHotEncoder a ciclo_semanal.
 
 	7. La función debe devolver un numpy.ndarray con todas estas columnas combinadas.
