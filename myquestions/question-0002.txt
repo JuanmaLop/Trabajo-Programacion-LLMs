@@ -1,15 +1,15 @@
 El Problema
-Una empresa de mensajería quiere predecir si un paquete llegará tarde. Te entregan un DataFrame con el historial de pedidos, pero las fechas están en formato de texto y la información del tráfico está dispersa. Para entrenar un modelo, necesitas transformar estos datos en métricas numéricas útiles.
+Una ONG internacional utiliza drones para entregar suministros médicos en zonas de desastre. Para optimizar la batería de los equipos, necesitan analizar los registros de avistamientos de señales de auxilio. Recibes un DataFrame con los registros, pero los tiempos están en texto y las distancias varían según la ubicación del dron base.
 
 Tu Misión
-Escribe una función llamada extraer_metricas_logistica(df_pedidos, umbral_distancia) que realice lo siguiente:
+Escribe una función llamada analizar_operacion_drones(df_avistamientos, radio_operativo) que realice lo siguiente:
 
-	1. Conversión de Fechas: Convierte las columnas 'fecha_registro' y 'fecha_limite' a objetos datetime de pandas.
+	1. Sincronización de Relojes: Convierte las columnas 'hora_deteccion' y 'limite_autonomia' a objetos datetime de pandas.
 
-	2. Cálculo de Urgencia: Crea una nueva columna llamada 'horas_disponibles' que sea la diferencia en horas entre la fecha_limite y la fecha_registro. (Usa numpy para asegurar que el resultado sea de tipo flotante).
+	2. Ventana de Rescate: Crea una nueva columna llamada 'horas_disponibles' que represente la diferencia en horas entre el limite_autonomia y la hora_deteccion. (Asegúrate de que el resultado sea de tipo float).
  
-	3. Filtrado por Relevancia: Filtra el DataFrame para conservar solo los pedidos donde la 'distancia_km' sea mayor a umbral_distancia.
+	3. Filtrado por Rango: Filtra el DataFrame para conservar solo los registros donde la 'distancia_objetivo_km' sea mayor al radio_operativo.
 
-	4. Codificación Simple: Crea una columna binaria 'es_prioritario' que valga 1 si el 'tipo_servicio' es "Express" y 0 en cualquier otro caso.
+	4. Identificación de Emergencia: Crea una columna binaria 'es_prioritario' que valga 1 si el 'tipo_alerta' es "Critica" y 0 en cualquier otro caso.
 
-	5. Salida: Devuelve el DataFrame resultante conteniendo solo las columnas: ['horas_disponibles', 'distancia_km', 'es_prioritario'].
+	5. Salida: Devuelve el DataFrame resultante conteniendo únicamente las columnas: ['horas_disponibles', 'distancia_objetivo_km', 'es_prioritario'].
