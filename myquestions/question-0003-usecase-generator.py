@@ -4,88 +4,77 @@ import random
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-def generar_caso_de_uso_preparar_features_temporales():
-    """
-    Genera un caso de uso aleatorio (input y output esperado)
-    para la función preparar_features_temporales(df, fecha_col).
+def generar_caso_de_uso_preparar_analisis_satelital():
+    # --- 1. Parámetros aleatorios ---
+    n_rows = random.randint(8, 15)
+    n_sensores = random.randint(2, 4)
 
-    Output:
-      input_data: dict con keys {'df', 'fecha_col'}
-      output_data: np.ndarray (matriz de features procesadas)
-    """
-    # --- 1. Parámetros aleatorios de tamaño ---
-    n_rows = random.randint(6, 18)      # filas
-    n_numeric = random.randint(1, 4)    # columnas numéricas además de la fecha
+    # --- 2. Crear DataFrame de Telemetría ---
+    sensor_cols = [f"sensor_telemetria_{i}" for i in range(n_sensores)]
+    data_sensores = np.random.randn(n_rows, n_sensores) * (np.random.randint(5, 15))
+    df = pd.DataFrame(data_sensores, columns=sensor_cols)
 
-    # --- 2. Crear DataFrame base con columnas numéricas ---
-    numeric_cols = [f"num_{i}" for i in range(n_numeric)]
-    data_num = np.random.randn(n_rows, n_numeric) * (np.random.randint(1,5))  # variación de escala
-    df = pd.DataFrame(data_num, columns=numeric_cols)
-
-    # Introducir NaNs aleatorios en ~10-25% de las celdas numéricas
-    nan_mask = np.random.choice([True, False], size=df.shape, p=[0.15, 0.85])
+    # Introducir fallos de sensores (NaNs)
+    nan_mask = np.random.choice([True, False], size=df.shape, p=[0.2, 0.8])
     df[nan_mask] = np.nan
 
-    # --- 3. Crear columna de fechas con algunos NaNs ---
-    start = pd.Timestamp('2018-01-01')
-    # generar fechas dentro de ~3 años
-    random_days = np.random.randint(0, 365*3, size=n_rows)
-    fechas = [start + pd.Timedelta(int(d), unit='D') for d in random_days]
-    # Convertir a strings (simulando entrada real)
-    fecha_col = 'fecha_evento'
-    df[fecha_col] = [d.strftime("%Y-%m-%d") for d in fechas]
+    # --- 3. Columna de Momentos de Captura ---
+    start = pd.Timestamp('2024-01-01')
+    random_days = np.random.randint(0, 500, size=n_rows)
+    momentos = [start + pd.Timedelta(int(d), unit='D') for d in random_days]
 
-    # introducir NaNs en fechas (aprox 10%)
-    for i in random.sample(range(n_rows), k=max(1, n_rows // 10)):
-        df.at[i, fecha_col] = np.nan
+    col_momento = 'momento_captura'
+    df[col_momento] = [m.strftime("%Y/%m/%d") for m in momentos]
 
-    # --- 4. Construcción del INPUT (pasamos copia) ---
+    # Simular errores de transmisión en fechas
+    for i in random.sample(range(n_rows), k=1):
+        df.at[i, col_momento] = "ERROR_DATA"
+
+    # --- 4. INPUT ---
     input_data = {
-        'df': df.copy(),
-        'fecha_col': fecha_col
+        'df_telemetria': df.copy(),
+        'col_momento': col_momento
     }
 
-    # --- 5. Calcular OUTPUT esperado replicando la lógica ---
+    # --- 5. CÁLCULO DE OUTPUT ESPERADO ---
     df_work = df.copy()
 
-    # A) parsear fechas y rellenar NaT con mediana (o valor por defecto)
-    df_work[fecha_col] = pd.to_datetime(df_work[fecha_col], errors='coerce')
-    if df_work[fecha_col].notna().sum() > 0:
-        median_date = df_work[fecha_col].dropna().median()
+    # A) Fechas
+    df_work[col_momento] = pd.to_datetime(df_work[col_momento], errors='coerce', format='%Y/%m/%d')
+    if df_work[col_momento].notna().sum() > 0:
+        median_date = df_work[col_momento].dropna().median()
     else:
         median_date = pd.Timestamp('2020-01-01')
-    df_work[fecha_col] = df_work[fecha_col].fillna(median_date)
+    df_work[col_momento] = df_work[col_momento].fillna(median_date)
 
-    # B) crear columnas temporales
-    df_work['day'] = df_work[fecha_col].dt.day.astype(int)
-    df_work['month'] = df_work[fecha_col].dt.month.astype(int)
-    df_work['weekday'] = df_work[fecha_col].dt.weekday.astype(int)  # 0..6
-    df_work['is_weekend'] = df_work['weekday'].isin([5,6]).astype(int)
+    # B) Features temporales
+    df_work['dia_mision'] = df_work[col_momento].dt.day.astype(int)
+    df_work['mes_operativo'] = df_work[col_momento].dt.month.astype(int)
+    df_work['ciclo_semanal'] = df_work[col_momento].dt.weekday.astype(int)
+    df_work['prioridad_fin_semana'] = df_work['ciclo_semanal'].isin([5,6]).astype(int)
 
-    # C) OneHot encode weekday (7 columnas)
+    # C) OneHot de ciclo_semanal
     ohe = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
-    weekday_ohe = ohe.fit_transform(df_work[['weekday']])
+    semana_ohe = ohe.fit_transform(df_work[['ciclo_semanal']])
 
-    # D) Seleccionar columnas numéricas originales y aplicar imputación + escalado
-    numeric_original = numeric_cols  # lista
+    # D) Sensores originales (Imputación + Escalado)
     imputer = SimpleImputer(strategy='mean')
-    X_num_imputed = imputer.fit_transform(df_work[numeric_original])
-
+    X_num_imputed = imputer.fit_transform(df_work[sensor_cols])
     scaler = StandardScaler()
     X_num_scaled = scaler.fit_transform(X_num_imputed)
 
-    # E) Construir la matriz final: [num_scaled] + [day, month, is_weekend] + [weekday_ohe]
-    temporal_simple = df_work[['day', 'month', 'is_weekend']].to_numpy(dtype=float)
-    X_final = np.hstack([X_num_scaled, temporal_simple, weekday_ohe])
+    # E) Combinación final
+    temporal_simple = df_work[['dia_mision', 'mes_operativo', 'prioridad_fin_semana']].to_numpy(dtype=float)
+    X_final = np.hstack([X_num_scaled, temporal_simple, semana_ohe])
 
-    output_data = X_final
+    return input_data, X_final
 
-    return input_data, output_data
-
-# --- Ejemplo de uso rápido ---
+# Ejemplo de prueba rápida:
 if __name__ == "__main__":
-    entrada, salida_esperada = generar_caso_de_uso_preparar_features_temporales()
+    entrada, salida_esperada = generar_caso_de_uso_preparar_analisis_satelital()
     print("INPUT keys:", list(entrada.keys()))
     print("DataFrame sample:")
-    print(entrada['df'].head())
+    print(entrada['df_telemetria'].head())
+    print(entrada['df_telemetria'].shape)
+    print("col_momento:", entrada['col_momento'])
     print("OUTPUT shape (features procesadas):", salida_esperada)
