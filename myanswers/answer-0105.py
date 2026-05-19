@@ -7,7 +7,9 @@ def detectar_sesgo_creditos(df: pd.DataFrame):
     X = df.drop(columns=['aprobado'])
     y = df['aprobado']
 
-    model = LogisticRegression(random_state=42, solver='liblinear') 
+    model = LogisticRegression(random_state=42, solver='liblinear')
+    # Entrenar el modelo antes de hacer predicciones
+    model.fit(X, y)
 
     df['prediccion_aprobado'] = model.predict(X)
 
@@ -49,7 +51,7 @@ def detectar_sesgo_creditos(df: pd.DataFrame):
 
         reporte['diferencia_tasa_aprobacion_real'] = diff_actual
         reporte['diferencia_tasa_aprobacion_predicha'] = diff_pred
-        reporte['sesgo_detectado_real'] = diff_actual > 0.05 
+        reporte['sesgo_detectado_real'] = diff_actual > 0.05
         reporte['sesgo_detectado_predicho'] = diff_pred > 0.05
 
     return reporte
