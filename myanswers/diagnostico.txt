@@ -1,11 +1,13 @@
 Diagnóstico del Generador de Casos de Uso para la pregunta #2 que se me fue asignada: answer-0328.py:  Estimación de Emisiones de Carbono
 
+Link del generador de casos de uso para la pregunta:
+https://github.com/alejandrohenaoa/Alejandro/blob/main/myquestions/question-0004-usecase-generator.py
+
 He encontrado una inconsistencia en el generador de casos de uso que me impide obtener una respuesta correcta a pesar de que mi solución cumple con lo pedido.
 
 Intenté contactar al compañero que elaboró este problema para aclararlo, pero no he recibido respuesta.
 
 Aquí el link de la evidencia: 
-
 https://drive.google.com/file/d/1fHmjQGVcWCL1HuOO9xSKmElUqSQPBVLt/view?usp=sharing
 
 Aquí explico cuales son los problemas con este generador de casos de uso:
