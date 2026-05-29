@@ -1,0 +1,15 @@
+Diagnóstico del Generador de Casos de Uso para la pregunta #2 que se me fue asignada: answer-0328.py:  Estimación de Emisiones de Carbono
+
+He encontrado una inconsistencia en el generador de casos de uso que me impide obtener una respuesta correcta a pesar de que mi solución cumple con lo pedido.
+
+Intenté contactar al compañero que elaboró este problema para aclararlo, pero no he recibido respuesta.
+
+Aquí el link de la evidencia: 
+
+https://drive.google.com/file/d/1fHmjQGVcWCL1HuOO9xSKmElUqSQPBVLt/view?usp=sharing
+
+Aquí explico cuales son los problemas con este generador de casos de uso:
+
+1.Falta de aleatoriedad en la generación de datos: Este generador desde la línea 8 a la 20 utiliza `X_train`, `y_train` y `X_test` con valores fijos. Por lo que cada vez que se invoca al generador de casos de uso, este siempre devuelve exactamente los mismos datos de entrada.
+
+2.Falta de datos de entrada (input): Según lo especificado para este trabajo, el primer elemento devuelto por el generador debe ser un diccionario con valores aleatorios para los argumentos de la función que hay que desarrollar. Sin embargo, en las líneas 32 y 33 del generador, `resultado_dict` solo contiene predicciones_co2, los cuales son los resultados esperados, no los argumentos de entrada (`X_train`, `y_train`, `X_test`) que mi función requiere. Esto me imposibilita probar que mi función si genera una solución equivalente a la producida por el generador de casos de uso.
